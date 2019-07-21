@@ -3,7 +3,8 @@ param (
 	[switch]$q = $false,
 	[switch]$ping = $false,
 	[switch]$server = $false,
-	[switch]$plot = $false
+	[switch]$plot = $false,
+	[switch]$log = $false
 	)
 
 Function Show-Graph {
@@ -101,7 +102,12 @@ if ($ProcessPID) {
 		}
 		Remove-Item .\log
 	} Else {
-		$ProcessPing = ./nping.exe --tcp -q -c 1 -p $ProcessPort $ProcessServer | Select-String -Pattern "Avg\srtt:\s(\d+)" -allmatches | foreach-object {$_.matches} | foreach {$_.groups[1].value} | Select-Object -Unique
+		if ($log) {
+			$ProcessPing = ./nping.exe --tcp -q -c 1 -p $ProcessPort $ProcessServer | Select-String -Pattern "Avg\srtt:\s(\d+)" -allmatches | foreach-object {$_.matches} | foreach {$_.groups[1].value} | Select-Object -Unique | Out-File -FilePath .\log -Append
+			$ProcessPingOutput = Get-Content ".\log" | select -Last 1
+		} Else {
+			$ProcessPing = ./nping.exe --tcp -q -c 1 -p $ProcessPort $ProcessServer | Select-String -Pattern "Avg\srtt:\s(\d+)" -allmatches | foreach-object {$_.matches} | foreach {$_.groups[1].value} | Select-Object -Unique
+		}
 	}
 } Else {
 	$ProcessPing = 0
@@ -117,7 +123,11 @@ if ($q) {
 		}
 	}
 	if ($ping) {
-		write-output "$ProcessPing ms"
+		if ($log) {
+			write-output "$ProcessPingOutput ms"
+		} Else {
+			write-output "$ProcessPing ms"
+		}
 	}
 } Else {
 	if ($server) {
@@ -128,6 +138,10 @@ if ($q) {
 		}
 	}
 	if ($ping) {
-		write-output "Ping : $ProcessPing ms"
+		if ($log) {
+			write-output "Ping : $ProcessPingOutput ms"
+		} Else {
+			write-output "Ping : $ProcessPing ms"
+		}
 	}
 }
