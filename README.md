@@ -1,5 +1,5 @@
 # ProcessLatency
-latency.ps1 -process NAME [-q] [-server] [-ping]
+## latency.ps1 -process NAME [-q] [-server] [-ping]
 -process : Process Name
 -q : No Labels
 -server : Output Server Name
