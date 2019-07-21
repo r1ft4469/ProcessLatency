@@ -11,7 +11,9 @@ if ($ProcessPID) {
 	$ProcessServer = Get-NetTCPConnection -OwningProcess (get-process $ProcessName -ErrorAction SilentlyContinue|select -expand id) -ErrorAction 	SilentlyContinue|? RemoteAddress -notlike 0.0*|? RemoteAddress -notlike 127* |Select-Object -Last 1|select -expand RemoteAddress -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 	$ProcessPort = Get-NetTCPConnection -OwningProcess (get-process $ProcessName -ErrorAction SilentlyContinue|select -expand id) -ErrorAction SilentlyContinue|? RemoteAddress -notlike 0.0*|? RemoteAddress -notlike 127*|Select-Object -Last 1|select -expand RemotePort -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 	$ProcessPing = ./nping.exe --tcp -q -c 1 -p $ProcessPort $ProcessServer | Select-String -Pattern "Avg\srtt:\s(\d+)" -allmatches | foreach-object {$_.matches} | foreach {$_.groups[1].value} | Select-Object -Unique
-	$ProcessServerHost = [System.Net.Dns]::GetHostByAddress($ProcessServer).Hostname
+	if ($ProcessServer) {
+		$ProcessServerHost = [System.Net.Dns]::GetHostByAddress($ProcessServer).Hostname
+	}
 } Else {
 	$ProcessPing = 0
 	$ProcessServer = "Not Connected"
