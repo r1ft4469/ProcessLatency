@@ -1,2 +1,9 @@
 # ProcessLatency
-Small PS Script that views the last connection from a process and shows the latency
+latency.ps1 -process NAME [-q] [-server] [-ping]
+-process : Process Name
+-q : No Labels
+-server : Output Server Name
+-ping : Output Ping
+
+Requires NMAP https://nmap.org/download.html
+nping needs to be in the same folder as script.
