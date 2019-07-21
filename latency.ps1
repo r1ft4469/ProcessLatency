@@ -90,11 +90,12 @@ if ($ProcessPID) {
 		While ($ProcessPID) {
 			$ProcessPing = ./nping.exe --tcp -q -c 1 -p $ProcessPort $ProcessServer | Select-String -Pattern "Avg\srtt:\s(\d+)" -allmatches | foreach-object {$_.matches} | foreach {$_.groups[1].value} | Select-Object -Unique | Out-File -FilePath .\log -Append
 			$Datapoints = gc ".\log"
+			$ProcessPingOutput = Get-Content ".\log" | select -Last 1
 			clear
 			if ($ProcessServerHost) {
-				Show-Graph -Datapoints $Datapoints -XAxisTitle "$ProcessServerHost" -YAxisTitle "Ping"
+				Show-Graph -Datapoints $Datapoints -XAxisTitle "$ProcessServerHost - $ProcessPingOutput ms" -YAxisTitle "Ping"
 			} Else {
-				Show-Graph -Datapoints $Datapoints -XAxisTitle "$ProcessServer" -YAxisTitle "Ping"
+				Show-Graph -Datapoints $Datapoints -XAxisTitle "$ProcessServer - $ProcessPingOutput ms" -YAxisTitle "Ping"
 			}
 			Start-Sleep -Milliseconds 500
 		}
