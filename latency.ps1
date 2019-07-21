@@ -4,7 +4,8 @@ param (
 	[switch]$ping = $false,
 	[switch]$server = $false,
 	[switch]$plot = $false,
-	[switch]$log = $false
+	[switch]$log = $false,
+	[switch]$clearlog = $false
 	)
 
 Function Show-Graph {
@@ -81,6 +82,9 @@ Function Show-Graph {
 
 $ProcessName = $process
 $ProcessPID = Get-Process $ProcessName -ErrorAction SilentlyContinue
+if ($clearlog) {
+	Remove-Item ".\log"
+}
 if ($ProcessPID) {
 	$ProcessServer = Get-NetTCPConnection -OwningProcess (get-process $ProcessName -ErrorAction SilentlyContinue|select -expand id) -ErrorAction 	SilentlyContinue|? RemoteAddress -notlike 0.0*|? RemoteAddress -notlike 127* |Select-Object -Last 1|select -expand RemoteAddress -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 	$ProcessPort = Get-NetTCPConnection -OwningProcess (get-process $ProcessName -ErrorAction SilentlyContinue|select -expand id) -ErrorAction SilentlyContinue|? RemoteAddress -notlike 0.0*|? RemoteAddress -notlike 127*|Select-Object -Last 1|select -expand RemotePort -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
@@ -100,7 +104,6 @@ if ($ProcessPID) {
 			}
 			Start-Sleep -Milliseconds 500
 		}
-		Remove-Item .\log
 	} Else {
 		if ($log) {
 			$ProcessPing = ./nping.exe --tcp -q -c 1 -p $ProcessPort $ProcessServer | Select-String -Pattern "Avg\srtt:\s(\d+)" -allmatches | foreach-object {$_.matches} | foreach {$_.groups[1].value} | Select-Object -Unique | Out-File -FilePath .\log -Append
