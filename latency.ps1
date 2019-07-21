@@ -5,38 +5,38 @@ param (
 	[switch]$server = $false
 	)
 
-$gameName = $process
-$gameProcess = Get-Process $gameName -ErrorAction SilentlyContinue
-if ($gameProcess) {
-	$gameServer = Get-NetTCPConnection -OwningProcess (get-process $gameName -ErrorAction SilentlyContinue|select -expand id) -ErrorAction 	SilentlyContinue|? RemoteAddress -notlike 0.0*|? RemoteAddress -notlike 127* |Select-Object -Last 1|select -expand RemoteAddress -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-	$gamePort = Get-NetTCPConnection -OwningProcess (get-process $gameName -ErrorAction SilentlyContinue|select -expand id) -ErrorAction SilentlyContinue|? RemoteAddress -notlike 0.0*|? RemoteAddress -notlike 127*|Select-Object -Last 1|select -expand RemotePort -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
-	$gamePing = ./nping.exe --tcp -q -c 1 -p $gamePort $gameServer | Select-String -Pattern "Avg\srtt:\s(\d+)" -allmatches | foreach-object {$_.matches} | foreach {$_.groups[1].value} | Select-Object -Unique
-	$gameServerHost = [System.Net.Dns]::GetHostByAddress($gameServer).Hostname
+$ProcessName = $process
+$ProcessPID = Get-Process $ProcessName -ErrorAction SilentlyContinue
+if ($ProcessPID) {
+	$ProcessServer = Get-NetTCPConnection -OwningProcess (get-process $ProcessName -ErrorAction SilentlyContinue|select -expand id) -ErrorAction 	SilentlyContinue|? RemoteAddress -notlike 0.0*|? RemoteAddress -notlike 127* |Select-Object -Last 1|select -expand RemoteAddress -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+	$ProcessPort = Get-NetTCPConnection -OwningProcess (get-process $ProcessName -ErrorAction SilentlyContinue|select -expand id) -ErrorAction SilentlyContinue|? RemoteAddress -notlike 0.0*|? RemoteAddress -notlike 127*|Select-Object -Last 1|select -expand RemotePort -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
+	$ProcessPing = ./nping.exe --tcp -q -c 1 -p $ProcessPort $ProcessServer | Select-String -Pattern "Avg\srtt:\s(\d+)" -allmatches | foreach-object {$_.matches} | foreach {$_.groups[1].value} | Select-Object -Unique
+	$ProcessServerHost = [System.Net.Dns]::GetHostByAddress($ProcessServer).Hostname
 } Else {
-	$gamePing = 0
-	$gameServer = "Not Connected"
+	$ProcessPing = 0
+	$ProcessServer = "Not Connected"
 }
 
 if ($q) {
 if ($server) {
-		if ($gameServerHost) {
-			write-host "$gameServerHost"
+		if ($ProcessServerHost) {
+			write-host "$ProcessServerHost"
 		} Else {
-			write-host "$gameServer"
+			write-host "$ProcessServer"
 		}
 	}
 	if ($ping) {
-		write-output "$gamePing ms"
+		write-output "$ProcessPing ms"
 	}
 } Else {
 	if ($server) {
-		if ($gameServerHost) {
-			write-host "Server : $gameServerHost"
+		if ($ProcessServerHost) {
+			write-host "Server : $ProcessServerHost"
 		} Else {
-			write-host "Server : $gameServer"
+			write-host "Server : $ProcessServer"
 		}
 	}
 	if ($ping) {
-		write-output "Ping : $gamePing ms"
+		write-output "Ping : $ProcessPing ms"
 	}
 }
