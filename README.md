@@ -1,5 +1,5 @@
 # ProcessLatency
-## latency.ps1 -process NAME [-q] [-server] [-ping]
+## latency.ps1 -process NAME [-plot] [-log] [-q] [-server] [-ping]
 ```
 -process : Process Name
 -plot : Plot a Graph while the process is running
